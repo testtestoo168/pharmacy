@@ -718,8 +718,8 @@ class ZATCAIntegrationService {
     }
 
     private function computeSignedPropertiesHash(string $xml): string {
-        // Use XML C14N to canonicalize the SignedProperties element,
-        // which is the standard XML-DSig approach for computing reference digests.
+        // Use EXCLUSIVE C14N — only includes visibly-utilized namespaces (xades, ds),
+        // not all ancestor namespaces (Invoice, cac, cbc, ext, etc.)
         try {
             $doc = new \DOMDocument('1.0', 'UTF-8');
             $doc->preserveWhiteSpace = true;
@@ -728,7 +728,7 @@ class ZATCAIntegrationService {
             $xpath->registerNamespace('xades', self::NS_XADES);
             $nodes = $xpath->query('//xades:SignedProperties[@Id="xadesSignedProperties"]');
             if ($nodes->length > 0) {
-                $canonical = $nodes->item(0)->C14N(false, false);
+                $canonical = $nodes->item(0)->C14N(true, false);
                 return base64_encode(hash('sha256', $canonical, true));
             }
         } catch (\Exception $e) {}
