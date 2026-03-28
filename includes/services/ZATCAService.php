@@ -714,27 +714,11 @@ class ZATCAIntegrationService {
     }
 
     private function computeSignedPropertiesHash(string $xml): string {
-        // ZATCA SDK uses dom4j asXML() serialization for signed properties hash:
-        // - xmlns:xades declared on the SignedProperties element (before Id attr)
-        // - xmlns:ds declared on each ds:* child element individually
-        // - Self-closing tags preserved (unlike C14N which expands them)
-        if (preg_match('/<xades:SignedProperties(\b[^>]*)>(.*?)<\/xades:SignedProperties>/s', $xml, $m)) {
-            $attrs = $m[1];
-            $inner = $m[2];
-            $serialized = '<xades:SignedProperties'
-                . ' xmlns:xades="' . self::NS_XADES . '"'
-                . $attrs . '>'
-                . $inner
-                . '</xades:SignedProperties>';
-            $dsNs = self::NS_DS;
-            $serialized = preg_replace_callback(
-                '/<(ds:[A-Za-z0-9]+)([\s\/>])/',
-                function($m) use ($dsNs) {
-                    return '<' . $m[1] . ' xmlns:ds="' . $dsNs . '"' . $m[2];
-                },
-                $serialized
-            );
-            return base64_encode(hash('sha256', $serialized, true));
+        // ZATCA spec Step 5: "Linearize the XML block (properties tag) and remove the spaces"
+        // Extract raw SignedProperties tag from XML, remove whitespace between tags, hash as-is.
+        if (preg_match('/<xades:SignedProperties[^>]*>.*?<\/xades:SignedProperties>/s', $xml, $m)) {
+            $raw = preg_replace('/>\s+</', '><', trim($m[0]));
+            return base64_encode(hash('sha256', $raw, true));
         }
         return base64_encode(hash('sha256', '', true));
     }
