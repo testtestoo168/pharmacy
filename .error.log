@@ -1,0 +1,64 @@
+[24-Mar-2026 14:03:13 UTC] PHP Fatal error:  Uncaught Error: Undefined constant PDO::MYSQL_ATTR_INIT_COMMAND in /home/claude/pharmacy/includes/services/Database.php:34
+Stack trace:
+#0 /home/claude/pharmacy/includes/services/Database.php(47): Database->__construct()
+#1 /home/claude/pharmacy/includes/config.php(39): Database::getInstance()
+#2 Command line code(2): require_once('...')
+#3 {main}
+  thrown in /home/claude/pharmacy/includes/services/Database.php on line 34
+[25-Mar-2026 07:37:36 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/u608284497/domains/moassasty.com/public_html/pharmacy-urs/activity_log.php on line 300
+[25-Mar-2026 07:37:36 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/u608284497/domains/moassasty.com/public_html/pharmacy-urs/activity_log.php on line 300
+[25-Mar-2026 07:37:36 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/u608284497/domains/moassasty.com/public_html/pharmacy-urs/activity_log.php on line 300
+[25-Mar-2026 07:37:41 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/u608284497/domains/moassasty.com/public_html/pharmacy-urs/activity_log.php on line 300
+[25-Mar-2026 07:37:41 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/u608284497/domains/moassasty.com/public_html/pharmacy-urs/activity_log.php on line 300
+[25-Mar-2026 07:37:41 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/u608284497/domains/moassasty.com/public_html/pharmacy-urs/activity_log.php on line 300
+[26-Mar-2026 20:22:39 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /var/www/pharmacy/activity_log.php on line 300
+[26-Mar-2026 20:22:39 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /var/www/pharmacy/activity_log.php on line 300
+[26-Mar-2026 20:22:39 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /var/www/pharmacy/activity_log.php on line 300
+[26-Mar-2026 20:22:39 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /var/www/pharmacy/activity_log.php on line 300
+[26-Mar-2026 20:22:39 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /var/www/pharmacy/activity_log.php on line 300
+[26-Mar-2026 22:29:53 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:29:58 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:30:10 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:30:14 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:30:15 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:30:52 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:30:53 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:30:53 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:31:04 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[26-Mar-2026 22:31:06 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 05:49:05 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 07:50:58 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 07:51:01 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 07:51:03 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 07:59:08 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 07:59:09 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 07:59:10 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:17:27 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:17:29 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:17:29 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:17:29 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:17:36 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:17:58 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:18:00 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:19:24 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:43:08 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:43:33 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:43:57 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:46:01 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:49:10 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:49:15 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:49:15 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:54:34 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 08:54:36 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 09:44:53 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 10:32:29 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 11:00:46 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 11:01:07 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 11:01:08 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[27-Mar-2026 11:03:05 UTC] PHP Fatal error:  Cannot redeclare ZATCAIntegrationService::runComplianceChecks() in /var/www/pharmacy/includes/services/ZATCAService.php on line 680
+[28-Mar-2026 07:22:10 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /var/www/pharmacy/debug_zatca.php on line 2) in /var/www/pharmacy/debug_zatca.php on line 15
+[28-Mar-2026 07:22:14 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /var/www/pharmacy/debug_zatca.php on line 2) in /var/www/pharmacy/debug_zatca.php on line 15
+[28-Mar-2026 07:22:16 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /var/www/pharmacy/debug_zatca.php on line 2) in /var/www/pharmacy/debug_zatca.php on line 15
+[28-Mar-2026 07:22:17 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /var/www/pharmacy/debug_zatca.php on line 2) in /var/www/pharmacy/debug_zatca.php on line 15
+[28-Mar-2026 07:22:18 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /var/www/pharmacy/debug_zatca.php on line 2) in /var/www/pharmacy/debug_zatca.php on line 15
+[28-Mar-2026 07:22:19 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active (started from /var/www/pharmacy/debug_zatca.php on line 2) in /var/www/pharmacy/debug_zatca.php on line 15
