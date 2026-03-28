@@ -666,14 +666,16 @@ class ZATCAIntegrationService {
             $propsHash = $this->computeSignedPropertiesHash($xml);
             $xml = str_replace('PROPS_DIGEST_PLACEHOLDER', $propsHash, $xml);
 
-            // ZATCA spec: sign the canonical invoice XML (same data as ds:DigestValue hash),
-            // NOT the canonical ds:SignedInfo. This same signature goes into both
-            // ds:SignatureValue and QR tag 7.
+            // XML-DSig: sign the canonical ds:SignedInfo element (NOT the invoice body).
             // secp256k1 keys are not loadable via PHP OpenSSL 3.x — use CLI.
-            $canonicalInvoice = $this->getCanonicalInvoiceBytes($xml);
-            if (!$canonicalInvoice) $canonicalInvoice = $xml; // fallback
+            $signedInfoCanonical = $this->canonicalizeSignedInfo($xml);
+            if (!$signedInfoCanonical) {
+                // fallback: try canonical invoice bytes (may fail ZATCA validation)
+                $signedInfoCanonical = $this->getCanonicalInvoiceBytes($xml);
+                if (!$signedInfoCanonical) $signedInfoCanonical = $xml;
+            }
 
-            $signature = $this->signWithCli($canonicalInvoice, $privateKeyPem);
+            $signature = $this->signWithCli($signedInfoCanonical, $privateKeyPem);
             if (!$signature)
                 return ['success'=>false, 'error'=>'CLI signing failed — check openssl binary and key format'];
 
@@ -716,10 +718,10 @@ class ZATCAIntegrationService {
         if (preg_match('/<xades:SignedProperties(\b[^>]*)>(.*?)<\/xades:SignedProperties>/s', $xml, $m)) {
             $attrs = $m[1];
             $inner = $m[2];
-            // Rebuild with xmlns:xades on the root element
+            // Rebuild mimicking dom4j asXML(): Id attribute BEFORE xmlns:xades declaration
             $serialized = '<xades:SignedProperties'
-                . ' xmlns:xades="' . self::NS_XADES . '"'
-                . $attrs . '>'
+                . $attrs
+                . ' xmlns:xades="' . self::NS_XADES . '">'
                 . $inner
                 . '</xades:SignedProperties>';
             // Add xmlns:ds to each ds:* element (dom4j re-declares inherited namespace per element)
@@ -939,6 +941,24 @@ class ZATCAIntegrationService {
         $sLen = ord($der[++$pos]); $pos++;
         $s = substr($der, $pos, $sLen);
         return ['r' => $r, 's' => $s];
+    }
+
+    // ===== Canonicalize ds:SignedInfo (for XML-DSig signature) =====
+
+    private function canonicalizeSignedInfo(string $xml): string {
+        try {
+            $doc = new \DOMDocument('1.0', 'UTF-8');
+            $doc->preserveWhiteSpace = true;
+            $doc->loadXML($xml);
+            $xpath = new \DOMXPath($doc);
+            $xpath->registerNamespace('ds', self::NS_DS);
+            $nodes = $xpath->query('//ds:SignedInfo');
+            if ($nodes->length === 0) return '';
+            // C14N with exclusive=false (inclusive c14n11 as declared in CanonicalizationMethod)
+            return $nodes->item(0)->C14N(false, false);
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 
     // ===== Canonical Invoice Bytes (for signing and QR hash) =====
