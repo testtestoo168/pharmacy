@@ -651,8 +651,8 @@ class ZATCAIntegrationService {
             $certDer = base64_decode($certB64pem);
 
             $invoiceHash = $this->computeInvoiceHash($xml);
-            // ZATCA cert hash = base64(hex(SHA256(DER))) — base64 of the hex string, not raw bytes
-            $certHash    = base64_encode(hash('sha256',$certDer));
+            // ZATCA cert hash = base64(SHA256_raw_binary(DER)) per XML-DSig / XAdES standard
+            $certHash    = base64_encode(hash('sha256',$certDer,true));
             $signingTime = gmdate('Y-m-d\TH:i:s');
 
             $xml = str_replace('SIGNING_TIME_PLACEHOLDER',  $signingTime,  $xml);
@@ -712,7 +712,7 @@ class ZATCAIntegrationService {
         // ZATCA signed-properties hash mimics dom4j asXML() behavior:
         // - xmlns:xades declared on xades:SignedProperties element
         // - xmlns:ds declared on each ds:* child element individually
-        // - hash = base64(hex(SHA256(utf8_bytes))) — base64 of hex string, not raw bytes
+        // - hash = base64(SHA256_raw_binary(utf8_bytes)) per XML-DSig standard
         if (preg_match('/<xades:SignedProperties(\b[^>]*)>(.*?)<\/xades:SignedProperties>/s', $xml, $m)) {
             $attrs = $m[1];
             $inner = $m[2];
@@ -731,9 +731,9 @@ class ZATCAIntegrationService {
                 },
                 $serialized
             );
-            return base64_encode(hash('sha256', $serialized));
+            return base64_encode(hash('sha256', $serialized, true));
         }
-        return base64_encode(hash('sha256', ''));
+        return base64_encode(hash('sha256', '', true));
     }
 
     private function formatIssuerName(array $issuer): string {
