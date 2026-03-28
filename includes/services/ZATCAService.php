@@ -658,8 +658,8 @@ class ZATCAIntegrationService {
             }
 
             $invoiceHash = $this->computeInvoiceHash($xml);
-            // ZATCA cert hash = base64(hex(SHA256(DER))) per ZATCA spec Step 3
-            $certHash    = base64_encode(hash('sha256',$certDer));
+            // XAdES cert hash = base64(SHA256_binary(DER)) — diagnostic confirmed match
+            $certHash    = base64_encode(hash('sha256',$certDer,true));
             $signingTime = gmdate('Y-m-d\TH:i:s');
 
             $xml = str_replace('SIGNING_TIME_PLACEHOLDER',  $signingTime,  $xml);
@@ -714,11 +714,21 @@ class ZATCAIntegrationService {
     }
 
     private function computeSignedPropertiesHash(string $xml): string {
-        // ZATCA spec Step 5: "Linearize the XML block (properties tag) and remove the spaces"
-        // Extract raw SignedProperties tag from XML, remove whitespace between tags, hash as-is.
-        if (preg_match('/<xades:SignedProperties[^>]*>.*?<\/xades:SignedProperties>/s', $xml, $m)) {
-            $raw = preg_replace('/>\s+</', '><', trim($m[0]));
-            return base64_encode(hash('sha256', $raw, true));
+        // ZATCA: extract SignedProperties, add xmlns:xades and xmlns:ds declarations
+        // to make element self-contained (mimics dom4j asXML() behavior), then hash.
+        if (preg_match('/<xades:SignedProperties(\b[^>]*)>(.*?)<\/xades:SignedProperties>/s', $xml, $m)) {
+            $serialized = '<xades:SignedProperties'
+                . ' xmlns:xades="' . self::NS_XADES . '"'
+                . $m[1] . '>' . $m[2] . '</xades:SignedProperties>';
+            $dsNs = self::NS_DS;
+            $serialized = preg_replace_callback(
+                '/<(ds:[A-Za-z0-9]+)([\s\/>])/',
+                function($x) use ($dsNs) {
+                    return '<' . $x[1] . ' xmlns:ds="' . $dsNs . '"' . $x[2];
+                },
+                $serialized
+            );
+            return base64_encode(hash('sha256', $serialized, true));
         }
         return base64_encode(hash('sha256', '', true));
     }
