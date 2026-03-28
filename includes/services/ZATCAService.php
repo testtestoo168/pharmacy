@@ -718,20 +718,28 @@ class ZATCAIntegrationService {
     }
 
     private function computeSignedPropertiesHash(string $xml): string {
-        // Use EXCLUSIVE C14N — only includes visibly-utilized namespaces (xades, ds),
-        // not all ancestor namespaces (Invoice, cac, cbc, ext, etc.)
-        try {
-            $doc = new \DOMDocument('1.0', 'UTF-8');
-            $doc->preserveWhiteSpace = true;
-            $doc->loadXML($xml);
-            $xpath = new \DOMXPath($doc);
-            $xpath->registerNamespace('xades', self::NS_XADES);
-            $nodes = $xpath->query('//xades:SignedProperties[@Id="xadesSignedProperties"]');
-            if ($nodes->length > 0) {
-                $canonical = $nodes->item(0)->C14N(true, false);
-                return base64_encode(hash('sha256', $canonical, true));
-            }
-        } catch (\Exception $e) {}
+        // ZATCA SDK uses dom4j asXML() serialization for signed properties hash:
+        // - xmlns:xades declared on the SignedProperties element (before Id attr)
+        // - xmlns:ds declared on each ds:* child element individually
+        // - Self-closing tags preserved (unlike C14N which expands them)
+        if (preg_match('/<xades:SignedProperties(\b[^>]*)>(.*?)<\/xades:SignedProperties>/s', $xml, $m)) {
+            $attrs = $m[1];
+            $inner = $m[2];
+            $serialized = '<xades:SignedProperties'
+                . ' xmlns:xades="' . self::NS_XADES . '"'
+                . $attrs . '>'
+                . $inner
+                . '</xades:SignedProperties>';
+            $dsNs = self::NS_DS;
+            $serialized = preg_replace_callback(
+                '/<(ds:[A-Za-z0-9]+)([\s\/>])/',
+                function($m) use ($dsNs) {
+                    return '<' . $m[1] . ' xmlns:ds="' . $dsNs . '"' . $m[2];
+                },
+                $serialized
+            );
+            return base64_encode(hash('sha256', $serialized, true));
+        }
         return base64_encode(hash('sha256', '', true));
     }
 
