@@ -658,8 +658,8 @@ class ZATCAIntegrationService {
             }
 
             $invoiceHash = $this->computeInvoiceHash($xml);
-            // ZATCA cert hash = base64(SHA256_raw_binary(DER)) per XML-DSig / XAdES standard
-            $certHash    = base64_encode(hash('sha256',$certDer,true));
+            // ZATCA cert hash = base64(hex(SHA256(DER))) per ZATCA spec Step 3
+            $certHash    = base64_encode(hash('sha256',$certDer));
             $signingTime = gmdate('Y-m-d\TH:i:s');
 
             $xml = str_replace('SIGNING_TIME_PLACEHOLDER',  $signingTime,  $xml);
@@ -673,16 +673,12 @@ class ZATCAIntegrationService {
             $propsHash = $this->computeSignedPropertiesHash($xml);
             $xml = str_replace('PROPS_DIGEST_PLACEHOLDER', $propsHash, $xml);
 
-            // XML-DSig: sign the canonical ds:SignedInfo element (NOT the invoice body).
+            // ZATCA spec Step 2: sign the canonical invoice body (same data used for invoice hash).
             // secp256k1 keys are not loadable via PHP OpenSSL 3.x — use CLI.
-            $signedInfoCanonical = $this->canonicalizeSignedInfo($xml);
-            if (!$signedInfoCanonical) {
-                // fallback: try canonical invoice bytes (may fail ZATCA validation)
-                $signedInfoCanonical = $this->getCanonicalInvoiceBytes($xml);
-                if (!$signedInfoCanonical) $signedInfoCanonical = $xml;
-            }
+            $canonicalInvoice = $this->getCanonicalInvoiceBytes($xml);
+            if (!$canonicalInvoice) $canonicalInvoice = $xml;
 
-            $signature = $this->signWithCli($signedInfoCanonical, $privateKeyPem);
+            $signature = $this->signWithCli($canonicalInvoice, $privateKeyPem);
             if (!$signature)
                 return ['success'=>false, 'error'=>'CLI signing failed — check openssl binary and key format'];
 
