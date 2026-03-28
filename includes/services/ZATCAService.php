@@ -553,21 +553,9 @@ class ZATCAIntegrationService {
         // التوقيع
         $signResult = $this->signInvoiceXML($x);
         if (!$signResult['success']) {
-            $hash = $this->computeInvoiceHash($x);
-            $qr   = $this->buildQRCode($sName,$sTax,$invDate.'T'.$invTime,$taxIncl,$totalVat,$hash);
-            // Replace ALL placeholders so the XML is schema-valid even without a real signature
-            $emptyHash = base64_encode(hash('sha256','',true));
-            $x = str_replace('INVOICE_DIGEST_PLACEHOLDER', $hash,      $x);
-            $x = str_replace('PROPS_DIGEST_PLACEHOLDER',   $emptyHash, $x);
-            $x = str_replace('SIGNATURE_VALUE_PLACEHOLDER',$emptyHash, $x);
-            $x = str_replace('CERTIFICATE_PLACEHOLDER',    '',         $x);
-            $x = str_replace('SIGNING_TIME_PLACEHOLDER',   gmdate('Y-m-d\TH:i:s'), $x);
-            $x = str_replace('CERT_DIGEST_PLACEHOLDER',    $emptyHash, $x);
-            $x = str_replace('ISSUER_NAME_PLACEHOLDER',    '',         $x);
-            $x = str_replace('SERIAL_NUMBER_PLACEHOLDER',  '0',        $x);
-            $x = str_replace('QR_PLACEHOLDER',             $qr,        $x);
-            $this->updatePreviousHash($hash,$counter);
-            return ['success'=>true,'xml'=>$x,'hash'=>$hash,'uuid'=>$uuid,'qr'=>$qr,'counter'=>$counter,'previousHash'=>$prevHash,'sign_warning'=>$signResult['error']??'Signing failed'];
+            // DO NOT submit with dummy hashes — ZATCA will always reject them.
+            // Return the signing error so the caller knows what went wrong.
+            return ['success'=>false, 'error'=>'فشل التوقيع الرقمي: '.($signResult['error']??'Unknown signing error')];
         }
 
         $signedXml = $signResult['xml'];
@@ -630,9 +618,30 @@ class ZATCAIntegrationService {
             return ['success'=>false, 'error'=>'Missing private key or certificate'];
 
         try {
-            // ZATCA stores binarySecurityToken as base64(base64(DER)).
-            // Decode once to get the PEM-compatible base64 content (MIIB8TC...).
-            $certB64pem = base64_decode($certB64);
+            // ZATCA binarySecurityToken may be:
+            //   A) base64(base64(DER)) — double-encoded
+            //   B) base64(DER) — single-encoded (already PEM body)
+            // Try double-decode first, fallback to single.
+            $decoded = base64_decode($certB64, true);
+            $certB64pem = null;
+            $certDer    = null;
+
+            if ($decoded !== false) {
+                // Check if decoded result looks like a base64 string (PEM body)
+                $cleaned = preg_replace('/\s+/', '', $decoded);
+                if (preg_match('/^[A-Za-z0-9+\/]+=*$/', $cleaned) && strlen($cleaned) > 100) {
+                    // Double-encoded: decoded is the PEM body
+                    $certB64pem = $cleaned;
+                    $certDer    = base64_decode($certB64pem);
+                }
+            }
+
+            if ($certB64pem === null) {
+                // Single-encoded: $certB64 IS already the PEM body
+                $certB64pem = preg_replace('/\s+/', '', $certB64);
+                $certDer    = base64_decode($certB64pem);
+            }
+
             $certPem = "-----BEGIN CERTIFICATE-----\n".chunk_split($certB64pem,64,"\n")."-----END CERTIFICATE-----";
             $certResource = openssl_x509_read($certPem);
             if (!$certResource)
@@ -647,8 +656,6 @@ class ZATCAIntegrationService {
                     ? gmp_strval(gmp_init($hexM[1], 16))
                     : bcadd(base_convert($hexM[1], 16, 10), '0'); // fallback (may lose precision)
             }
-            // Actual DER bytes = decode the PEM base64 content once more
-            $certDer = base64_decode($certB64pem);
 
             $invoiceHash = $this->computeInvoiceHash($xml);
             // ZATCA cert hash = base64(SHA256_raw_binary(DER)) per XML-DSig / XAdES standard
@@ -711,30 +718,20 @@ class ZATCAIntegrationService {
     }
 
     private function computeSignedPropertiesHash(string $xml): string {
-        // ZATCA signed-properties hash mimics dom4j asXML() behavior:
-        // - xmlns:xades declared on xades:SignedProperties element
-        // - xmlns:ds declared on each ds:* child element individually
-        // - hash = base64(SHA256_raw_binary(utf8_bytes)) per XML-DSig standard
-        if (preg_match('/<xades:SignedProperties(\b[^>]*)>(.*?)<\/xades:SignedProperties>/s', $xml, $m)) {
-            $attrs = $m[1];
-            $inner = $m[2];
-            // Rebuild mimicking dom4j asXML(): Id attribute BEFORE xmlns:xades declaration
-            $serialized = '<xades:SignedProperties'
-                . $attrs
-                . ' xmlns:xades="' . self::NS_XADES . '">'
-                . $inner
-                . '</xades:SignedProperties>';
-            // Add xmlns:ds to each ds:* element (dom4j re-declares inherited namespace per element)
-            $dsNs = self::NS_DS;
-            $serialized = preg_replace_callback(
-                '/<(ds:[A-Za-z0-9]+)([\s\/>])/',
-                function($m) use ($dsNs) {
-                    return '<' . $m[1] . ' xmlns:ds="' . $dsNs . '"' . $m[2];
-                },
-                $serialized
-            );
-            return base64_encode(hash('sha256', $serialized, true));
-        }
+        // Use XML C14N to canonicalize the SignedProperties element,
+        // which is the standard XML-DSig approach for computing reference digests.
+        try {
+            $doc = new \DOMDocument('1.0', 'UTF-8');
+            $doc->preserveWhiteSpace = true;
+            $doc->loadXML($xml);
+            $xpath = new \DOMXPath($doc);
+            $xpath->registerNamespace('xades', self::NS_XADES);
+            $nodes = $xpath->query('//xades:SignedProperties[@Id="xadesSignedProperties"]');
+            if ($nodes->length > 0) {
+                $canonical = $nodes->item(0)->C14N(false, false);
+                return base64_encode(hash('sha256', $canonical, true));
+            }
+        } catch (\Exception $e) {}
         return base64_encode(hash('sha256', '', true));
     }
 
