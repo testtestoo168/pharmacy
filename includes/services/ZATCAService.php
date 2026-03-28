@@ -735,10 +735,24 @@ class ZATCAIntegrationService {
 
     private function formatIssuerName(array $issuer): string {
         $parts=[];
-        foreach (['CN'=>'CN','O'=>'O','OU'=>'OU','C'=>'C','L'=>'L','ST'=>'ST','serialNumber'=>'serialNumber'] as $key=>$label) {
+        // Include ALL DN components including DC (Domain Component) which ZATCA certs use
+        $knownKeys = ['CN'=>'CN','O'=>'O','OU'=>'OU','C'=>'C','L'=>'L','ST'=>'ST',
+                       'serialNumber'=>'serialNumber','DC'=>'DC','emailAddress'=>'emailAddress'];
+        foreach ($knownKeys as $key=>$label) {
             if (!empty($issuer[$key])) {
-                $val=is_array($issuer[$key])?$issuer[$key][0]:$issuer[$key];
-                $parts[]="$label=$val";
+                $vals = is_array($issuer[$key]) ? $issuer[$key] : [$issuer[$key]];
+                foreach ($vals as $val) {
+                    $parts[]="$label=$val";
+                }
+            }
+        }
+        // Also include any unknown keys
+        foreach ($issuer as $key=>$val) {
+            if (!isset($knownKeys[$key])) {
+                $vals = is_array($val) ? $val : [$val];
+                foreach ($vals as $v) {
+                    $parts[]="$key=$v";
+                }
             }
         }
         return implode(', ',$parts);
